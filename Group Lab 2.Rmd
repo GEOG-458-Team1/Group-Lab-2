@@ -1,0 +1,22 @@
+---
+title: "Group Lab 2"
+author: "Aldrin Carbonell"
+date: "January 30, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+```
+
+<!-- Part 3: Mapping & Visualizing -->
+
+# Mapping Origin-Destination Data on Employment and Industry in the US 
+
+The data being analyzed was gathered under the US Census Bureau.
+
+The goal here is to 
+
+
+
