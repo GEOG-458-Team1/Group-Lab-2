@@ -4,26 +4,29 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
+# Loading data sources
+
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+
+# WAC, RAC, and OD data
+odData = read.csv("data/wa_od_main_JT00_2015.csv.gz") %>% as_tibble()
+wacData = read.csv("data/wac2015.csv") %>% as_tibble()
+racData = read.csv("data/rac2015.csv") %>% as_tibble()
+
+
+# Shapefiles for the Seattle area
 ```
 
-## R Markdown
+```{r, include=FALSE}
+# Part 2: Data Wrangling boogaloo
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+# Converting GeoID columns to characters 
+odData[, 1:2] <- sapply(odData[, 1:2], as.character)
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+# Subsetting the census tract (that we'll use to merge rows togethers)
+odData$wTract <- substr(odData$w_geocode, 6, 11)
+odData$hTract <- substr(odData$h_geocode, 6, 11)
 
-```{r cars}
-summary(cars)
+
 ```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
