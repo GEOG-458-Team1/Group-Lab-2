@@ -28,5 +28,7 @@ odData[, 1:2] <- sapply(odData[, 1:2], as.character)
 odData$wTract <- substr(odData$w_geocode, 6, 11)
 odData$hTract <- substr(odData$h_geocode, 6, 11)
 
+#Aggregated by Tracts
+AGtract=aggregate(. ~ odData$wTract + odData$hTract,data=odData[,c(3:12)],FUN=sum)
 
 ```
