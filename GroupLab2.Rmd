@@ -21,43 +21,16 @@ KC_shape <- shapefile("data/shapefiles/king10ct.shp")
 KC_block <- shapefile("data/shapefiles/kc_block_10.shp")
 
 
-# Shapefiles for the Seattle area
 ```
 
 ```{r, include=FALSE}
 # Part 2: Data Wrangling boogaloo
 
+#TRACT LEVEL DATA---------------------------------------------------------------
 # Converting GeoID columns to characters 
 odData[, 1:2] <- sapply(odData[, 1:2], as.character)
 wacData[1] <- sapply(wacData[,1], as.character)
 racData[1] <- sapply(racData[,1], as.character)
-
-#BLOCK LEVEL DATA---------------------------------------------------------------
-# Subsetting the census tract (that we'll use to merge rows togethers)
-odData$wTract <- substr(odData$w_geocode, 6, 11)
-odData$hTract <- substr(odData$h_geocode, 6, 11)
-#Work area subset
-wacData$wTract <- substr(wacData$w_geocode, 6, 11)
-#Residential area Subset
-racData$hTract <- substr(racData$h_geocode, 6, 11)
-
-#finding tracts that are within King County from a file that only has KC tracts
-KCtracts <- select(KCtract, GEOID10) 
-KCtracts$GEOID10 <- substr(KCtracts$GEOID10, 6, 11)
-
-#OD data by block in KC
-ODblk <- filter(odData, odData$wTract %in% KCtracts$GEOID10 == TRUE,
-                odData$hTract %in% KCtracts$GEOID10 == TRUE)
-#Work area characteristics by block in KC
-WACblk <- filter(wacData, wacData$wTract %in% KCtracts$GEOID10 == TRUE)
-#Residential area characteristics by block in KC
-RACblk <- filter(racData, racData$hTract %in% KCtracts$GEOID10 == TRUE)
-
-#Join to block level shapefiles
-
-
-#TRACT LEVEL DATA---------------------------------------------------------------
-
 
 
 #OD Aggregated by Tracts
@@ -68,19 +41,29 @@ WACAGtract=aggregate(. ~ wacData$wTract,data=wacData[,c(2:52)],FUN=sum)
 RACAGtract=aggregate(. ~ racData$hTract,data=racData[,c(2:42)],FUN=sum)
 
 #Selecting out tracts of interest non spatially (King County Tracts) ------------
+# Subsetting the census tract (that we'll use to merge rows togethers)
+odData$wTract <- substr(odData$w_geocode, 6, 11)
+odData$hTract <- substr(odData$h_geocode, 6, 11)
+#Work area subset
+wacData$wTract <- substr(wacData$w_geocode, 6, 11)
+#Residential area Subset
+racData$hTract <- substr(racData$h_geocode, 6, 11)
 
+#finding tracts that are within King County from a file that only has KC tracts
+KCtracts <- dplyr::select(KCtract, GEOID10)
+KCtracts$GEOID10 <- substr(KCtracts$GEOID10, 6, 11)
 
 
 #Selecting tracts where the work and home tracts are within King County for the OD data
 KCodtract <- filter(ODAGtract, ODAGtract$`odData$wTract` %in% KCtracts$GEOID10 == TRUE,
-                      ODAGtract$`odData$hTract` %in% KCtracts$GEOID10 == TRUE) %>% 
-  mutate(GEOID10 = paste0('53033', KCodtract$`odData$hTract`))
+                      ODAGtract$`odData$hTract` %in% KCtracts$GEOID10 == TRUE)
+KCodtract <- mutate(KCodtract, GEOID10 = paste0('53033', KCodtract$`odData$hTract`))
 #Selecting tracts in King County for aggregated WAC data
-KCwactract <- filter(WACAGtract, WACAGtract$`wacData$wTract` %in% KCtracts$GEOID10 == TRUE) %>% 
-  mutate(GEOID10 = paste0('53033', KCwactract$`wacData$wTract`))
+KCwactract <- filter(WACAGtract, WACAGtract$`wacData$wTract` %in% KCtracts$GEOID10 == TRUE) 
+KCwactract <-  mutate(KCwactract, GEOID10 = paste0('53033', KCwactract$`wacData$wTract`))
 #Selecting tracts in King County for aggregated RAC data
-KCractract <- filter(RACAGtract, RACAGtract$`racData$hTract` %in% KCtracts$GEOID10 == TRUE) %>% 
-  mutate(GEOID10 = paste0('53033', KCractract$`racData$hTract`))
+KCractract <- filter(RACAGtract, RACAGtract$`racData$hTract` %in% KCtracts$GEOID10 == TRUE)
+KCractract <-  mutate(KCractract, GEOID10 = paste0('53033', KCractract$`racData$hTract`))
 
 #Joining Data to tract level shapefiles -----------------------------------------
 
@@ -88,6 +71,22 @@ KCractract <- filter(RACAGtract, RACAGtract$`racData$hTract` %in% KCtracts$GEOID
 KC_rac_with_shape <- merge(KC_shape, KCractract, by='GEOID10')
 #Joining wac with the shapefile
 KC_wac_with_shape <- merge(KC_shape, KCwactract, by='GEOID10')
-#Joining OD with the shapefile 
-KC_od_with_shape <- merge(KC_shape, KCodtract, by='GEOID10')
+
+
+
+#BLOCK LEVEL DATA---------------------------------------------------------------
+
+
+#OD data by block in KC
+ODblk <- filter(odData, odData$wTract %in% KCtracts$GEOID10 == TRUE,
+                odData$hTract %in% KCtracts$GEOID10 == TRUE)
+#Work area characteristics by block in KC
+WACblk <- filter(wacData, wacData$wTract %in% KCtracts$GEOID10 == TRUE)
+WACblk <- mutate(WACblk, GEOID10 = paste0('53033', WACblk$wTract))
+#Residential area characteristics by block in KC
+RACblk <- filter(racData, racData$hTract %in% KCtracts$GEOID10 == TRUE)
+RACblk <- mutate(RACblk, GEOID10 = paste0('53033', RACblk$hTract))
+#Join to block level shapefiles
+WACblk_with_shape <- merge(KC_block, WACblk, by='GEOID10')
+RACblk_with_shape <- merge(KC_block, RACblk, by='GEOID10')
 ```
