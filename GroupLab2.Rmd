@@ -32,14 +32,6 @@ odData[, 1:2] <- sapply(odData[, 1:2], as.character)
 wacData[1] <- sapply(wacData[,1], as.character)
 racData[1] <- sapply(racData[,1], as.character)
 
-
-#OD Aggregated by Tracts
-ODAGtract=aggregate(. ~ odData$wTract + odData$hTract,data=odData[,c(3:12)],FUN=sum)
-#Wac Aggregated by Tracts
-WACAGtract=aggregate(. ~ wacData$wTract,data=wacData[,c(2:52)],FUN=sum)
-#Rac Aggregated by Tracts
-RACAGtract=aggregate(. ~ racData$hTract,data=racData[,c(2:42)],FUN=sum)
-
 #Selecting out tracts of interest non spatially (King County Tracts) ------------
 # Subsetting the census tract (that we'll use to merge rows togethers)
 odData$wTract <- substr(odData$w_geocode, 6, 11)
@@ -48,6 +40,13 @@ odData$hTract <- substr(odData$h_geocode, 6, 11)
 wacData$wTract <- substr(wacData$w_geocode, 6, 11)
 #Residential area Subset
 racData$hTract <- substr(racData$h_geocode, 6, 11)
+
+#OD Aggregated by Tracts
+ODAGtract=aggregate(. ~ odData$wTract + odData$hTract,data=odData[,c(3:12)],FUN=sum)
+#Wac Aggregated by Tracts
+WACAGtract=aggregate(. ~ wacData$wTract,data=wacData[,c(2:52)],FUN=sum)
+#Rac Aggregated by Tracts
+RACAGtract=aggregate(. ~ racData$hTract,data=racData[,c(2:42)],FUN=sum)
 
 #finding tracts that are within King County from a file that only has KC tracts
 KCtracts <- dplyr::select(KCtract, GEOID10)
