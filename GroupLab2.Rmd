@@ -75,17 +75,16 @@ KC_wac_with_shape <- merge(KC_shape, KCwactract, by='GEOID10')
 
 #BLOCK LEVEL DATA---------------------------------------------------------------
 
-
 #OD data by block in KC
-ODblk <- filter(odData, odData$wTract %in% KCtracts$GEOID10 == TRUE,
-                odData$hTract %in% KCtracts$GEOID10 == TRUE)
+ODblk <- filter(odData, odData$w_geocode %in% KC_block$GEOID10 == TRUE,
+                odData$h_geocode %in% KC_block$GEOID10 == TRUE)
 #Work area characteristics by block in KC
-WACblk <- filter(wacData, wacData$wTract %in% KCtracts$GEOID10 == TRUE)
-WACblk <- mutate(WACblk, GEOID10 = paste0('53033', WACblk$wTract))
+WACblk <- filter(wacData, wacData$w_geocode %in% KC_block$GEOID10 == TRUE)
+WACblk <- mutate(WACblk, MERGEID = WACblk$w_geocode)
 #Residential area characteristics by block in KC
-RACblk <- filter(racData, racData$hTract %in% KCtracts$GEOID10 == TRUE)
-RACblk <- mutate(RACblk, GEOID10 = paste0('53033', RACblk$hTract))
+RACblk <- filter(racData, racData$h_geocode %in% KC_block$GEOID10 == TRUE)
+RACblk <- mutate(RACblk, MERGEID = RACblk$h_geocode)
 #Join to block level shapefiles
-WACblk_with_shape <- merge(KC_block, WACblk, by='GEOID10')
-RACblk_with_shape <- merge(KC_block, RACblk, by='GEOID10')
+WACblk_with_shape <- merge(KC_block, WACblk, by.x='GEOID10', by.y='MERGEID')
+RACblk_with_shape <- merge(KC_block, RACblk, by.x='GEOID10', by.y='MERGEID')
 ```
