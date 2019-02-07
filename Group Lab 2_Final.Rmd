@@ -262,7 +262,7 @@ tm_shape(RACblk_with_shape) +
   tm_fill(title = "Number of jobs for workers  \n that have attained at least a \n Bachelor's degree \n (by Census Blocks)",
           col = "CD04") +
   tm_legend(legend.outside = TRUE) +
-  tm_borders()
+  tm_borders(lwd = 1, alpha = 0.04)
 ```
 
 As you can see, the map above that represents block level data is far more disorganized than the the map below, which represents tract level data. Since King County is a large scale area relative to a single census block, the variable in this map is difficult to visualize at a full extent. Census tracts are larger than census blocks, making it easier to view patterns.
